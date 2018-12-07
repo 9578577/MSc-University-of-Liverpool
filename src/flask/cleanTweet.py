@@ -42,7 +42,7 @@ for index, row in df.iterrows():
             print("[ERROR] Unable to detect language")
         # Save tweet to a CSV file ready to train the relevance model
         fields=[i, tweet]
-        with open(r'cleanTweets.csv', 'a', newline='\n', encoding='utf-8') as f:
+        with open(r'./outputs/cleanTweets.csv', 'a', newline='\n', encoding='utf-8') as f:
             writer = csv.writer(f)
             writer.writerow(fields)
         i+=1

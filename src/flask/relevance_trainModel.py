@@ -1,21 +1,19 @@
 import re
 import pandas as pd
 import numpy as np
-from sklearn import svm
+from joblib import dump
+from sklearn.naive_bayes import MultinomialNB
 from stop_words import get_stop_words
 from nltk.corpus import stopwords
 from sklearn.feature_extraction.text import CountVectorizer
 from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.model_selection import train_test_split
-import random
+
 # Define root
-root_path = "./"
+root_path = "./outputs/"
 
 # Read tweet CSV
-df = pd.read_csv(root_path + "tweets.csv", names=['ID', 'Tweet', 'Relevance'], index_col=0)
-df = df.head(10)
-
-print(df)
+df = pd.read_csv(root_path + "cleanTweets.csv", names=['ID', 'Tweet', 'Relevance'])
 
 # Compile emoji REGEX
 emoji_pattern = re.compile("["
@@ -38,28 +36,16 @@ stop_words.extend(nltk_stopwords)
 df['Tweet'] = df['Tweet'].apply(lambda x: ' '.join([w for w in x.split() if w not in stop_words]))
 
 # Define features and labels for model
-X = df['Tweet']
-y = df['Relevance']
-
-# Transform tweets into a numerical value using Count/TF
+X_train, X_test, y_train, y_test = train_test_split(df['Tweet'], df['Relevance'], random_state = 0)
 count_vect = CountVectorizer()
-X = count_vect.fit_transform(X)
+X_train_counts = count_vect.fit_transform(X_train)
 tfidf_transformer = TfidfTransformer()
-X = tfidf_transformer.fit_transform(X)
-
-# Split data for training and testing
-X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.1)
+X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
 
 # Train classifier
-clf = svm.SVC(gamma='scale')
-clf.fit(X_train, y_train)
-confidence = clf.score(X_test, y_test)
-print(confidence)
+clf = MultinomialNB().fit(X_train_tfidf, y_train)
+print(clf.predict(count_vect.transform(["rt evanalomma gaddafi constructed largest irrigation system world providing million cubic meters fre"])))
 
-pred = "I love Mr Gadaffi"
-pred = count_vect.fit_transform(pred)
-pred = tfidf_transformer.fit_transform(pred)
-print(str(clf.predict(pred)))
-
-for index, row in df.iterrows():
-    print(row['Tweet'])
+# Save classifier
+dump(clf, 'relevance_classifier.joblib') 
+dump(count_vect, 'count_vectorizer.joblib')

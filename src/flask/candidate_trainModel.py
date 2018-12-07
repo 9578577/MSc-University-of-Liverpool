@@ -9,10 +9,10 @@ from sklearn.feature_extraction.text import TfidfTransformer
 from sklearn.model_selection import train_test_split
 import random
 # Define root
-root_path = "./"
+root_path = "./outputs/"
 
 # Read tweet CSV
-df = pd.read_csv(root_path + "tweets.csv", names=['ID', 'Tweet', 'Relevance'], index_col=0)
+df = pd.read_csv(root_path + "tweets.csv", names=['ID', 'Tweet', 'Candidate'], index_col=0)
 df = df.head(10)
 
 print(df)
