@@ -10,7 +10,7 @@ from time import sleep
 root_path = "../../"
 
 # Import CSV
-df = pd.read_csv(root_path + "tweets.csv", names=['ID', 'Tweet'], index_col=0)
+df = pd.read_csv(root_path + "tweets.csv", names=['Tweet'])
 
 # Compile emoji REGEX
 emoji_pattern = re.compile("["
@@ -24,7 +24,6 @@ emoji_pattern = re.compile("["
 translator = Translator()
 
 # Loop through dataframe
-i = 0
 for index, row in df.iterrows():
     try:
         tweet = re.sub('[^0-9A-Za-z\u0621-\u064a\ufb50-\ufdff\ufe70-\ufefc ]+', ' ', row['Tweet']) # Remove special characters from tweet
@@ -42,11 +41,9 @@ for index, row in df.iterrows():
             print("[ERROR] Unable to detect language")
         # Convert capitals to lower and save tweet to a CSV file ready to train the relevance model
         tweet = tweet.lower()
-        fields=[i, tweet]
         with open(r'./outputs/cleanTweets.csv', 'a', newline='\n', encoding='utf-8') as f:
             writer = csv.writer(f)
-            writer.writerow(fields)
-        i+=1
+            writer.writerow(tweet)
         print("Sleeping for 10 seconds")
         sleep(10) # Sleep after every translation so we don't overload the API and get blocked
     except JSONDecodeError as e: # Catch JSON errors

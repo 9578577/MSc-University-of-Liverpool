@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 root_path = "./outputs/"
 
 # Read tweet CSV
-df = pd.read_csv(root_path + "cleanTweets.csv", names=['ID', 'Tweet', 'Relevance'])
+df = pd.read_csv(root_path + "relevantTweets.csv", names=['Tweet', 'Candidate'])
 
 # Compile emoji REGEX
 emoji_pattern = re.compile("["
@@ -47,5 +47,5 @@ clf = MultinomialNB().fit(X_train_tfidf, y_train)
 print(clf.predict(count_vect.transform(["rt evanalomma gaddafi constructed largest irrigation system world providing million cubic meters fre"])))
 
 # Save classifier
-dump(clf, 'relevance_classifier.joblib') 
+dump(clf, 'candidate_classifier.joblib') 
 dump(count_vect, 'count_vectorizer.joblib')
