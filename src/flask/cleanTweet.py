@@ -40,7 +40,8 @@ for index, row in df.iterrows():
             print("[English] " + tweet)
         else:
             print("[ERROR] Unable to detect language")
-        # Save tweet to a CSV file ready to train the relevance model
+        # Convert capitals to lower and save tweet to a CSV file ready to train the relevance model
+        tweet = tweet.lower()
         fields=[i, tweet]
         with open(r'./outputs/cleanTweets.csv', 'a', newline='\n', encoding='utf-8') as f:
             writer = csv.writer(f)

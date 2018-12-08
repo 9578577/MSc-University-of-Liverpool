@@ -32,10 +32,13 @@ def twitter_analysis():
 
    if(lang=="en"):
       originalTweet = None
-      classifiedTweet = tweet
+      tweet = re.sub('[^A-Za-z]+', ' ', tweet)
+      classifiedTweet = tweet.lower()
    elif(lang=="ar"):
       originalTweet = tweet
+      tweet = re.sub('[^\u0621-\u064a\ufb50-\ufdff\ufe70-\ufefc ]+', ' ', tweet)
       classifiedTweet = translator.translate(tweet, dest="en").text
+      classifiedTweet = classifiedTweet.lower()
    else:
       print("[ERROR] Unable to detect language of tweet")
       originalTweet = None
@@ -55,31 +58,45 @@ def twitter_analysis():
    relevance = relevance_clf.predict(count_vect.transform([classifiedTweet]))
    relevance = np.asscalar(relevance[0])
 
-   # Classify tweet to determine candidate
-   # 0 - Gadaffi, 2 - Haftar
-   candidate = 0
+   if(relevance == 1):
+      # Determine if the tweet is a retweet
+      if("rt" in originalTweet or "RT" in originalTweet or "rt" in classifiedTweet or "RT" in originalTweet):
+         retweet = 1
+      else:
+         retweet = 0
 
-   # Determine sentiment of the tweet
-   sentiment = 0
+      # Classify tweet to determine candidate
+      # 0 - Gadaffi, 1 - Haftar       DETERMINE IF TWEET CONTAINS BOTH CANDIDATES NAMES, IF IT DOESNT DONT CALC SENTIMENT/CANDIDATE
+      candidate = 0
 
-   # Create array to output back to Storm server
-   output = {
-      'OriginalTweet': originalTweet,
-      'ClassifiedTweet': classifiedTweet,
-      'Language': lang, 
-      'Relevance': relevance, 
-      'Candidate': candidate, 
-      'Sentiment': sentiment
+      # Determine sentiment of the tweet - uses text-processing.com API
+      sentiment = 0
+
+      # Create array to output back to Storm server
+      output = {
+         'OriginalTweet': originalTweet,
+         'ClassifiedTweet': classifiedTweet,
+         'Language': lang,
+         'Retweet': retweet,
+         'Relevance': relevance, 
+         'Candidate': candidate, 
+         'Sentiment': sentiment
+         }
+      print(output)
+
+      # Append results to CSV file
+      fields=[originalTweet, classifiedTweet, lang, retweet, relevance, candidate, sentiment]
+      with open(r'./outputs/classifiedTweets.csv', 'a', newline='\n', encoding='utf-8') as f:
+         writer = csv.writer(f)
+         writer.writerow(fields)
+
+      return jsonify(results=output)
+   else:
+      output = {
+         'Relevance': relevance,
+         'Tweet': classifiedTweet
       }
-   print(output)
-
-   # Append results to CSV file
-   fields=[originalTweet, classifiedTweet, lang, relevance, candidate, sentiment]
-   with open(r'./outputs/classifiedTweets.csv', 'a', newline='\n', encoding='utf-8') as f:
-      writer = csv.writer(f)
-      writer.writerow(fields)
-
-   return jsonify(results=output)
+      return jsonify(results=output)
 
 if __name__ == '__main__':
    app.run(host='0.0.0.0', port=5050, debug=True)
