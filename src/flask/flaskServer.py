@@ -87,54 +87,53 @@ def twitter_analysis():
             candidate = candidate_clf.predict(candidate_count_vect.transform([classifiedTweet]))
             candidate = np.asscalar(candidate[0])
 
-            # # Determine sentiment of the tweet - uses text-processing.com API
-            # payload = {"text": classifiedTweet} # Payload to send to API
-            # try:
-            #    req = requests.post("http://text-processing.com/api/sentiment/", data=payload)
-            # except requests.exceptions.RequestException as e:
-            #    print("[EXCEPTION] " + e)
+            # Determine sentiment of the tweet - uses text-processing.com API
+            payload = {"text": classifiedTweet} # Payload to send to API
+            try:
+               req = requests.post("http://text-processing.com/api/sentiment/", data=payload)
+            except requests.exceptions.RequestException as e:
+               print("[EXCEPTION] " + e)
 
-            # # Check that the response code is valid
-            # if(req.status_code == 200):
-            #     # Pull the reponse from the request
-            #    resp = req.json()
+            # Check that the response code is valid
+            if(req.status_code == 200):
+                # Pull the reponse from the request
+               resp = req.json()
 
-            #    # Assign a numerical value to sentiment
-            #    if(resp['label'] == "pos"):
-            #       sentiment = 1
-            #    elif(resp['label'] == "neutral"):
-            #       sentiment = 0
-            #    elif(resp['label'] == "neg"):
-            #       sentiment = -1
-            sentiment = 0
-            # Append results to CSV file
-            fields=[originalTweet, classifiedTweet, lang, retweet, relevance, candidate, sentiment]
-            with open(r'./outputs/classifiedTweets.csv', 'a', newline='\n', encoding='utf-8') as f:
-               writer = csv.writer(f)
-               writer.writerow(fields)
-            # Create array to output back to Storm server
-            output = {
-               'Language': lang,
-               'Retweet': retweet,
-               'Relevance': relevance, 
-               'Candidate': candidate, 
-               'Sentiment': sentiment,
-               'Error': 0,
-               'ClassifiedTweet': classifiedTweet
+               # Assign a numerical value to sentiment
+               if(resp['label'] == "pos"):
+                  sentiment = 1
+               elif(resp['label'] == "neutral"):
+                  sentiment = 0
+               elif(resp['label'] == "neg"):
+                  sentiment = -1
+
+               # Append results to CSV file
+               fields=[originalTweet, classifiedTweet, lang, retweet, relevance, candidate, sentiment]
+               with open(r'./outputs/classifiedTweets.csv', 'a', newline='\n', encoding='utf-8') as f:
+                  writer = csv.writer(f)
+                  writer.writerow(fields)
+               # Create array to output back to Storm server
+               output = {
+                  'Language': lang,
+                  'Retweet': retweet,
+                  'Candidate': candidate, 
+                  'Sentiment': sentiment,
+                  'Error': 0,
+                  'ClassifiedTweet': classifiedTweet
+                  }
+               return jsonify(results=output)
+            else:
+               err = "Error code " + str(request.status_code)
+               # Append results to CSV file
+               fields=[err, classifiedTweet]
+               with open(r'./errors.csv', 'a', newline='\n', encoding='utf-8') as f:
+                  writer = csv.writer(f)
+                  writer.writerow(fields)
+               output = {
+                  'Error': 3,
+                  'errMessage': err
                }
-            return jsonify(results=output)
-            # else:
-            #    err = "Error code " + str(request.status_code)
-            #    # Append results to CSV file
-            #    fields=[err, classifiedTweet]
-            #    with open(r'./errors.csv', 'a', newline='\n', encoding='utf-8') as f:
-            #       writer = csv.writer(f)
-            #       writer.writerow(fields)
-            #    output = {
-            #       'Error': 3,
-            #       'errMessage': err
-            #    }
-            #    return jsonify(results=output)
+               return jsonify(results=output)
       else:
          err = "Tweet is irrelevant"
          # Append results to CSV file

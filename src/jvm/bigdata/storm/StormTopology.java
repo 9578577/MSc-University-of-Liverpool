@@ -35,8 +35,8 @@ public class StormTopology {
 		// Classification Bolt - Sends tweet to Flask server for classification/sentiment 
 		b.setBolt("ClassificationBolt", new ClassificationBolt(), 1).globalGrouping("PreprocessingBolt");
 
-		// Tally Bolt - Tally statistics sent from the Flask server, we save the latest stats each tweet
-		b.setBolt("TallyBolt", new TallyBolt(), 1).shuffleGrouping("ClassificationBolt");
+		// Tally Writer Bolts - Writes the JSON output to a CSV file for postprocessing
+		b.setBolt("TallyWriterBolt", new TallyWriterBolt("tally.csv"), 1).shuffleGrouping("ClassificationBolt");
 		
 		// Launch cluster in local mode
 		final LocalCluster cluster = new LocalCluster();

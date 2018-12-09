@@ -15,7 +15,6 @@ public class FileWriterBolt extends BaseRichBolt {
     OutputCollector collector;
 	
     PrintWriter writer;
-    int count = 0;
     private String filename;
 
     public FileWriterBolt(String filename){
@@ -38,8 +37,6 @@ public class FileWriterBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
         String tweet = tuple.getString(0);
         StringBuilder sb = new StringBuilder();
-        sb.append(count++);
-        sb.append(",");
         sb.append(tweet);
         sb.append("\n");
         writer.write(sb.toString());
@@ -47,7 +44,7 @@ public class FileWriterBolt extends BaseRichBolt {
     }
 
     @Override
-    public void declareOutputFields(OutputFieldsDeclarer outputFieldsDeclarer) {
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
     }
     
     @Override
