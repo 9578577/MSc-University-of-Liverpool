@@ -23,7 +23,7 @@ public class TwitterSpout extends BaseRichSpout {
     // Storm4j settings
 	private SpoutOutputCollector collector;
 	private TwitterStream twitterStream;
-	private LinkedBlockingQueue<String> queue = null;
+	private LinkedBlockingQueue<Status> queue = null;
 	
 	/*
 	 *  
@@ -46,7 +46,7 @@ public class TwitterSpout extends BaseRichSpout {
     private class TweetListener implements StatusListener {
         @Override
         public void onStatus(Status status) {
-            queue.offer(status.getText());
+            queue.offer(status);
         }
 
         @Override
@@ -73,7 +73,7 @@ public class TwitterSpout extends BaseRichSpout {
 	
 	@Override
 	public void open(Map conf, TopologyContext context, SpoutOutputCollector spoutOutputCollector) {
-		queue = new LinkedBlockingQueue<String>(1000);
+		queue = new LinkedBlockingQueue<Status>(1000);
 		collector = spoutOutputCollector;
 
 		// Initiate configuration builder
@@ -106,7 +106,7 @@ public class TwitterSpout extends BaseRichSpout {
 
 	@Override
 	public void nextTuple() {
-		String ret = queue.poll();
+		Status ret = queue.poll();
 		
 		if (ret == null) {
 			Utils.sleep(50);

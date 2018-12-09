@@ -13,7 +13,7 @@ from sklearn.model_selection import train_test_split
 root_path = "./outputs/"
 
 # Read tweet CSV
-df = pd.read_csv(root_path + "relevantTweets.csv", names=['Tweet', 'Candidate'])
+df = pd.read_csv(root_path + "relevantTweets.csv", names=['Tweet', 'Relevance'])
 
 # Compile emoji REGEX
 emoji_pattern = re.compile("["

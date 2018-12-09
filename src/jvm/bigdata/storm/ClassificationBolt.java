@@ -35,6 +35,7 @@ public class ClassificationBolt extends BaseRichBolt {
     public void execute(Tuple tuple) {
         String tweet = tuple.getString(0);
 
+        // Flask variables
         String s = null;
         String jsonText = null;
         JSONObject obj = null;
@@ -56,29 +57,32 @@ public class ClassificationBolt extends BaseRichBolt {
             BufferedReader stdError = new BufferedReader(new InputStreamReader(p.getErrorStream()));
 
             // Read JSON response from server
-            jsonText = readAll(stdInput);
-            if (jsonText != null) { // Make sure the reponse isn't null
-                obj = new JSONObject(jsonText); // Set the response equal to a JSON object
-                JSONObject res = obj.getJSONObject("results"); // Extract results object from response
-                int error = res.getInt("Error"); // Pull the error code from the response
-    
-                // If there is an error, output the error message
-                // TO DO: Emit the error code to the Tally bolt
-                if(error > 0) {
-                    System.out.println("[ERROR] " + res.getString("errMessage"));
-                
-                // If there is no error, pull the data from the JSON object
-                // These are then emitted to the Tally bolt for counting
-                } else {
-                    System.out.println("[SUCCESS] " + res.getString("ClassifiedTweet"));
-                    String language = res.getString("Language");
-                    int retweet = res.getInt("Retweet");
-                    int candidate = res.getInt("Candidate");
-                    int sentiment = res.getInt("Sentiment");
-                    collector.emit(new Values(language, retweet, candidate, sentiment));
+            try {
+                jsonText = readAll(stdInput);
+                if (jsonText != null) { // Make sure the reponse isn't null
+                    obj = new JSONObject(jsonText); // Set the response equal to a JSON object
+                    JSONObject res = obj.getJSONObject("results"); // Extract results object from response
+                    int error = res.getInt("Error"); // Pull the error code from the response
+        
+                    // If there is an error, output the error message
+                    // TO DO: Emit the error code to the Tally bolt
+                    if(error > 0) {
+                        System.out.println("[ERROR] " + res.getString("errMessage"));
+                    // If there is no error, pull the data from the JSON object
+                    // These are then emitted to the Tally bolt for counting
+                    } else {
+                        System.out.println("[SUCCESS] " + res.getString("ClassifiedTweet"));
+                        String classifiedTweet = res.getString("ClassifiedTweet");
+                        String language = res.getString("Language");
+                        int retweet = res.getInt("Retweet");
+                        int candidate = res.getInt("Candidate");
+                        int sentiment = res.getInt("Sentiment");
+                        collector.emit(new Values(classifiedTweet, language, retweet, candidate, sentiment));
+                    }
                 }
+            } catch (Exception e) {
+                System.out.println("[ERROR] " + e);
             }
-            
             // Print the error
             while ((s = stdError.readLine()) != null) {
                 System.out.println("[ERROR] " + s);
@@ -90,6 +94,6 @@ public class ClassificationBolt extends BaseRichBolt {
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        declarer.declare(new Fields("language", "retweet", "candidate", "sentiment"));
+        declarer.declare(new Fields("tweet", "language", "retweet", "candidate", "sentiment"));
     }
 }

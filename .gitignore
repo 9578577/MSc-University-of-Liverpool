@@ -1,4 +1,10 @@
 pom.xml
 target
+location.csv
+tally.csv
+total_tally.csv
+tweets.csv
 src/flask/packages
 src/flask/venv
+src/flask/outputs
+src/flask/errors.csv

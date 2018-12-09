@@ -108,7 +108,7 @@ def twitter_analysis():
                   sentiment = -1
 
                # Append results to CSV file
-               fields=[originalTweet, classifiedTweet, lang, retweet, relevance, candidate, sentiment]
+               fields=[classifiedTweet, lang, retweet, relevance, candidate, sentiment]
                with open(r'./outputs/classifiedTweets.csv', 'a', newline='\n', encoding='utf-8') as f:
                   writer = csv.writer(f)
                   writer.writerow(fields)

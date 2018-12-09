@@ -38,10 +38,13 @@ public class TallyWriterBolt extends BaseRichBolt {
 	@Override
 	public void execute(Tuple tuple) {
 		// Pull fields from tuple
+		String tweet = tuple.getStringByField("tweet");
 		String language = tuple.getStringByField("language");
 		int retweet = tuple.getIntegerByField("retweet");
 		int candidate = tuple.getIntegerByField("candidate");
 		int sentiment = tuple.getIntegerByField("sentiment");
+
+		tweet = tweet.replace(",", ""); // Remove commas so CSV file writes correctly
 
 		// Variables to hold tally data
 		int gaddafiCount = 0;
@@ -69,6 +72,8 @@ public class TallyWriterBolt extends BaseRichBolt {
 		}
 
 		StringBuilder sb = new StringBuilder();
+		sb.append(tweet);
+		sb.append(",");
 		sb.append(gaddafiCount);
 		sb.append(",");
 		sb.append(haftarCount);

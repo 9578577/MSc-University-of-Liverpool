@@ -8,6 +8,7 @@ import backtype.storm.tuple.Fields;
 import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import java.util.Map;
+import twitter4j.*;
 
 public class PreprocessingBolt extends BaseRichBolt {
 	private static final long serialVersionUID = 99;
@@ -21,7 +22,8 @@ public class PreprocessingBolt extends BaseRichBolt {
 	
 	@Override
 	public void execute(Tuple tuple) {
-		String tweet = tuple.getString(0);
+		Status status = (Status) tuple.getValue(0);
+		String tweet = status.getText();
 		
 		tweet = tweet.trim().replaceAll(" +", " "); // Replace multiple spaces
 		tweet = tweet.replaceAll("[\r\n]+", " "); // Replace new lines

@@ -29,6 +29,9 @@ public class StormTopology {
 		// Preprocessing Bolt
 		b.setBolt("PreprocessingBolt", new PreprocessingBolt(), 1).shuffleGrouping("TwitterSpout");
 
+		// Location Extraction Bolt - Extract the location of the tweet and write this to a CSV
+		b.setBolt("LocationExtractionBolt", new LocationExtractionBolt("location.csv"), 1).globalGrouping("TwitterSpout");
+
 		// File Writer Bolt - Only enabled when the Flask server isn't active
 		// b.setBolt("FileWriterBolt", new FileWriterBolt("tweets.csv"), 1).globalGrouping("PreprocessingBolt");
 
@@ -36,7 +39,7 @@ public class StormTopology {
 		b.setBolt("ClassificationBolt", new ClassificationBolt(), 1).globalGrouping("PreprocessingBolt");
 
 		// Tally Writer Bolts - Writes the JSON output to a CSV file for postprocessing
-		b.setBolt("TallyWriterBolt", new TallyWriterBolt("tally.csv"), 1).shuffleGrouping("ClassificationBolt");
+		b.setBolt("TallyWriterBolt", new TallyWriterBolt("tally.csv"), 1).globalGrouping("ClassificationBolt");
 		
 		// Launch cluster in local mode
 		final LocalCluster cluster = new LocalCluster();

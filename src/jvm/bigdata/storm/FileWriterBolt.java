@@ -41,6 +41,7 @@ public class FileWriterBolt extends BaseRichBolt {
         sb.append("\n");
         writer.write(sb.toString());
         writer.flush();
+        System.out.println("Writing tweet to file");
     }
 
     @Override
