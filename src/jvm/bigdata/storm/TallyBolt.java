@@ -9,8 +9,8 @@ import backtype.storm.tuple.Tuple;
 import backtype.storm.tuple.Values;
 import java.util.Map;
 
-public class PreprocessingBolt extends BaseRichBolt {
-	private static final long serialVersionUID = 99;
+public class TallyBolt extends BaseRichBolt {
+	private static final long serialVersionUID = 101;
 
 	OutputCollector collector;
 
@@ -21,19 +21,12 @@ public class PreprocessingBolt extends BaseRichBolt {
 	
 	@Override
 	public void execute(Tuple tuple) {
-		String tweet = tuple.getString(0);
+		String lang = tuple.getStringByField("language");
+		System.out.println("lang");
 		
-		tweet = tweet.trim().replaceAll(" +", " "); // Replace multiple spaces
-		tweet = tweet.replaceAll("[\r\n]+", " "); // Replace new lines
-		tweet = tweet.replace(",", ""); // Remove commas so CSV file writes correctly
-		tweet = tweet.replace("\"", ""); // Remove speech marks
+	}
 
-		collector.emit(new Values(tweet));
-	}
-	
 	@Override 
-	public void declareOutputFields(OutputFieldsDeclarer declarer) { 
-		declarer.declare(new Fields("tweet"));
+	public void declareOutputFields(OutputFieldsDeclarer declarer) {
 	}
-	
 }

@@ -10,9 +10,11 @@ public class StormTopology {
 	
 	public static void main(String[] args) throws Exception {
 		
-		Config conf = new Config();
+		Config conf = new Config(); // Instantiate Config
 		conf.setMessageTimeoutSecs(120);
+		conf.setMaxTaskParallelism(1); // Use one thread		
 
+		// Instantiate the TwitterSpout class
 		TwitterSpout twitterSpout = new TwitterSpout(
 				"RIfmhqAGTq9eTSl6gNVFlFRMp",
 				"1RaxB5Ga5d9FeXdlyv7vrzRVhbfmdUFqWnapPJk5wAFEz5GG92",
@@ -20,11 +22,23 @@ public class StormTopology {
 				"kFaNTonuunKTaCFz88zuxn0QEIjZiW6CFOzAR1MmS1V5n");
 		
 		TopologyBuilder b = new TopologyBuilder();
+
+		// Twitter Spout
 		b.setSpout("TwitterSpout", twitterSpout, 1);
+
+		// Preprocessing Bolt
 		b.setBolt("PreprocessingBolt", new PreprocessingBolt(), 1).shuffleGrouping("TwitterSpout");
+
+		// File Writer Bolt - Only enabled when the Flask server isn't active
 		// b.setBolt("FileWriterBolt", new FileWriterBolt("tweets.csv"), 1).globalGrouping("PreprocessingBolt");
+
+		// Classification Bolt - Sends tweet to Flask server for classification/sentiment 
 		b.setBolt("ClassificationBolt", new ClassificationBolt(), 1).globalGrouping("PreprocessingBolt");
+
+		// Tally Bolt - Tally statistics sent from the Flask server, we save the latest stats each tweet
+		b.setBolt("TallyBolt", new TallyBolt(), 1).shuffleGrouping("ClassificationBolt");
 		
+		// Launch cluster in local mode
 		final LocalCluster cluster = new LocalCluster();
 		cluster.submitTopology(TOPOLOGY_NAME, conf, b.createTopology());
 
