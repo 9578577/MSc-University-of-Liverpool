@@ -121,6 +121,7 @@ def twitter_analysis():
                   'Error': 0,
                   'ClassifiedTweet': classifiedTweet
                   }
+               print(output)
                return jsonify(results=output)
             else:
                err = "Error code " + str(request.status_code)

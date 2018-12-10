@@ -38,12 +38,12 @@ df['Tweet'] = df['Tweet'].apply(lambda x: ' '.join([w for w in x.split() if w no
 # Define features and labels for model
 X_train, X_test, y_train, y_test = train_test_split(df['Tweet'], df['Relevance'], random_state = 0)
 count_vect = CountVectorizer()
-X_train_counts = count_vect.fit_transform(X_train)
+X_train = count_vect.fit_transform(X_train)
 tfidf_transformer = TfidfTransformer()
-X_train_tfidf = tfidf_transformer.fit_transform(X_train_counts)
+X_train = tfidf_transformer.fit_transform(X_train)
 
 # Train classifier
-clf = MultinomialNB().fit(X_train_tfidf, y_train)
+clf = MultinomialNB().fit(X_train, y_train)
 print(clf.predict(count_vect.transform(["rt evanalomma gaddafi constructed largest irrigation system world providing million cubic meters fre"])))
 
 # Save classifier
