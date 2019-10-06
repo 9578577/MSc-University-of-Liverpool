@@ -1,0 +1,19 @@
+# Option pricing input file
+# -------------------------
+# You may enter data for up to 25 options, any extra will be ignored
+#
+# Info
+# S - Stock Price       (float)
+# K - Strike Price      (float)
+# T - Time to Maturity  (float)
+# D - Dividend Yield    (float)
+# r - Risk-free Rate    (float) Eg for 5% enter "5" and not "0.05"
+# v - Volaility         (float) Eg for 20% enter "20" and not "0.2"
+# type                  (int)   The type of option, enter "0" for call and "1" for put
+#
+# Structure input data
+#  S,K,T,D,r,v,type
+50,50,1,0,5,20,1,100
+50,50,1,0,5,20,0,100
+75,75,1,0,10,20,1,100
+75,75,1,0,10,20,0,100
